@@ -5,7 +5,6 @@
 
 ![](https://github.com/kaugoncalves/Jogo-21/blob/main/print%201.png?raw=true)
 
-![](https://github.com/kaugoncalves/FunkoPop-Virtual-Shop/blob/main/Carrinho.jpg?raw=true)
 
 ![](https://github.com/kaugoncalves/Jogo-21/blob/main/print%202.png?raw=true)
 

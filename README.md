@@ -1,6 +1,6 @@
 # 🎲 Jogo 21 🎲 
 
-###🎲 Jogo de 21 feito inteiramente em com Java  🎲
+### 🎲 Jogo de 21 feito inteiramente em com Java  🎲
 
 
 ![](https://github.com/kaugoncalves/Jogo-21/blob/main/print%201.png?raw=true)

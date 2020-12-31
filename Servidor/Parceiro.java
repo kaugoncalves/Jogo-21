@@ -34,11 +34,9 @@ public class Parceiro
 
     public void receba (Comunicado x) throws Exception
     {
-        
-        
         try
         {
-            this.transmissor.writeObject (x);           
+            this.transmissor.writeObject (x);
             this.transmissor.flush       ();
         }
         catch (IOException erro)

@@ -5,12 +5,13 @@ public class AceitadoraDeConexao extends Thread
 {
     private ServerSocket                 pedido;
     protected static ArrayList<Parceiro> usuarios;
-    protected static int                 descartada = 0; 
+    protected static Vector<Integer>     descartada; 
     protected static Vector<Integer>     baralho;
     protected static int                 idUsuario = 0; 
     protected static boolean             temVencedor=false;
     protected static int                 jogarNovamente = 0;
     protected static int                 vencedor;
+    protected static int                 seuId = 0;
     
     
     
@@ -51,10 +52,13 @@ public class AceitadoraDeConexao extends Thread
                 {
                     baralho.add(i);
                 }
+                
             }
+            this.descartada = new Vector<Integer>(); 
+            this.descartada.add(0);
         System.out.println("O baralho é: "+baralho.toString()); 
 
-
+        
         this.usuarios = usuarios;
     }
 
@@ -65,7 +69,9 @@ public class AceitadoraDeConexao extends Thread
             Socket conexao=null;
             try
             {
+                 
                 conexao = this.pedido.accept();
+                
             }
             catch (Exception erro)
             {
@@ -75,14 +81,17 @@ public class AceitadoraDeConexao extends Thread
             SupervisoraDeConexao supervisoraDeConexao=null;
             try
             {           
-                   
+                  
                 supervisoraDeConexao =
                 new SupervisoraDeConexao (conexao, usuarios);
                 
             }
             catch (Exception erro)
-            { erro.printStackTrace();}             
+            { erro.printStackTrace();}
+
+                     
             supervisoraDeConexao.start();
+            
            
         }
     }

@@ -38,20 +38,19 @@ public class Jogo {
         throw new Exception("Carta invalida");
 
         cartas.add(novaCarta);
+        AceitadoraDeConexao.descartada.removeElement(novaCarta);
         
 
     }    
 
-    public int descarte(int descartada){
+    public void descarte(int descartada){
 
-        if(descartada <= 0 || descartada >= 11)
-        return -1;
-
-        if(!this.cartas.contains(descartada))
-        return -1;
+        
 
         cartas.removeElement(descartada);
-        return 1;       
+
+        AceitadoraDeConexao.descartada.add(descartada);
+               
         
     }
 
@@ -88,6 +87,20 @@ public class Jogo {
                 }
             }
             
+    }
+    public void clear(Vector<Integer> baralho){
+        this.cartas.clear();
+
+        this.cartas = new Vector<Integer>(3);       
+        Random gerador = new Random();
+
+        for(int i = 0; i < this.cartas.capacity(); i++)
+        {
+            int posicao = (gerador.nextInt(AceitadoraDeConexao.baralho.size())); //so vai sortear uma poiscão q exista no vector baralho
+            this.cartas.add(baralho.elementAt(posicao));
+            AceitadoraDeConexao.baralho.removeElementAt(posicao); //logo apos adicionar a carta em determinada posição, aquela posicao é removida do vetor, e o vetor se adapta
+        }
+
     }
 
 

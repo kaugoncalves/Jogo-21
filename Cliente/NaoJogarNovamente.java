@@ -1,0 +1,1 @@
+public class NaoJogarNovamente extends Comunicado{}

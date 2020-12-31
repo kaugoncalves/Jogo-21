@@ -23,7 +23,11 @@ public class TratadoraDeComunicadoDeDesligamento extends Thread
 					System.out.println ("\nO servidor vai ser desligado agora;");
 				    System.err.println ("volte mais tarde!\n");
 				    System.exit(0);
-				}
+                }   
+                
+                               
+                
+                
 			}
 			catch (Exception erro)
 			{}

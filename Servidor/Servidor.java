@@ -30,6 +30,7 @@ public class Servidor
         }
         catch (Exception erro)
         {
+             erro.printStackTrace();
             System.err.println ("Escolha uma porta apropriada e liberada para uso!\n");
             return;
         }

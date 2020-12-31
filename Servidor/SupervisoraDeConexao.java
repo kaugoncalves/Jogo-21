@@ -12,6 +12,7 @@ public class SupervisoraDeConexao extends Thread
     private Socket              conexao;
     private ArrayList<Parceiro> usuarios;
     private int                 idUsuario;
+    private int                 erro = 0;    
    
 
     public SupervisoraDeConexao(Socket conexao, ArrayList<Parceiro> usuarios)
@@ -27,10 +28,8 @@ public class SupervisoraDeConexao extends Thread
         this.cartas =  j1.getCartas();              //cada carta adicionada e removida do vetor Baralho
         valorTotal = j1.somando();             
 
-        idUsuario = AceitadoraDeConexao.usuarios.size(); //so é realizada uma conexao por vez, entao
-                                                // o id do usuario sera sua posicao no vetor ""usuarios"
-        
-       
+        idUsuario = AceitadoraDeConexao.seuId; //cada jogador recebe o id que e criado na aceitadora
+        AceitadoraDeConexao.seuId++;         // o id aumenta cada vez que alguem se conecta
         this.conexao  = conexao;
         this.usuarios = usuarios;
     }
@@ -103,12 +102,11 @@ public class SupervisoraDeConexao extends Thread
                             
                             j1.novaCarta();         //cada carta adicionada e removida do vetor Baralho
                             this.cartas = j1.getCartas();
+
                             this.valorTotal = 0;                                                    
-                            valorTotal = j1.somando();	                            
-                            
-                            
-                            
-                            AceitadoraDeConexao.idUsuario = this.idUsuario +1; 
+                            valorTotal = j1.somando();	        
+
+                            AceitadoraDeConexao.idUsuario = this.idUsuario +1;  //sistema de vez
                             if(AceitadoraDeConexao.idUsuario == 3)
                             {
                                 
@@ -120,17 +118,17 @@ public class SupervisoraDeConexao extends Thread
 						    
                         case 'D': //descarte
 
-                            if(j1.descarte(pedidoDeOperacao.getValor()) == -1)
-                            {
-                                this.usuario.receba (new Resultado (this.cartas.toString(), 1, this.valorTotal, AceitadoraDeConexao.descartada )); 
-                                return; 
-                            }       
+                        if(!this.cartas.contains(pedidoDeOperacao.getValor()))
+                        {
+                            erro = -10; //esse erro é retornado mais tarde, quando é chamado o PedidoResultado
+                            break;
+                        }
+                
+                        j1.descarte(pedidoDeOperacao.getValor());
+                              
                             this.cartas = j1.getCartas();             
                             System.out.println("carta a ser descartada será: "+pedidoDeOperacao.getValor());
-
-                           AceitadoraDeConexao.descartada = pedidoDeOperacao.getValor(); //variavel descartada do servidor
-                            //nao conseguimos fazer um vetor de descartadas, estavamos tendo problema com LockSupport
-                            //e nao sabiamos como resolver
+                            
 
                             this.valorTotal = 0;
                             valorTotal = j1.somando();   
@@ -160,25 +158,32 @@ public class SupervisoraDeConexao extends Thread
                 }
                 else if (comunicado instanceof PedidoDeResultado)
                 {          //retorna as informações especificas de cada jogador
-                   this.usuario.receba (new Resultado (this.cartas.toString(), 0, this.valorTotal,  AceitadoraDeConexao.descartada));
+                                      
+
+                   this.usuario.receba (new Resultado (this.cartas.toString(), erro, this.valorTotal,  AceitadoraDeConexao.descartada.lastElement()));
                 }
 
                 else if (comunicado instanceof PedidoStart)
                 {   
 
                     //sistema de validação de conexoes, só inicia se tiver 3 jogadores
-                    synchronized(usuarios)
-                    {
-                    if(AceitadoraDeConexao.usuarios.size() == 2)
-                    this.usuario.receba (new Start (AceitadoraDeConexao.usuarios.size(), 3)); //caso tenha 2 players
-
-                    if(AceitadoraDeConexao.usuarios.size() == 3)
-                    this.usuario.receba (new Start (AceitadoraDeConexao.usuarios.size(), 1)); //caso tenha 3 players
-
-                    if(AceitadoraDeConexao.usuarios.size() == 1)
-                    this.usuario.receba (new Start (AceitadoraDeConexao.usuarios.size(), 2)); //caso tenha 1 players
-                    
+                   synchronized(usuarios)
+                    {                   
+                    if(AceitadoraDeConexao.seuId == 2)
+                    this.usuario.receba (new Start (AceitadoraDeConexao.seuId, 3)); //caso tenha 2 players
                     }
+                   synchronized(usuarios)
+                    { 
+                    if(AceitadoraDeConexao.seuId == 3)
+                    this.usuario.receba (new Start (AceitadoraDeConexao.seuId, 1)); //caso tenha 3 players
+                    }
+                    synchronized(usuarios)
+                    { 
+                    if(AceitadoraDeConexao.seuId == 1)
+                    this.usuario.receba (new Start (AceitadoraDeConexao.seuId, 2)); //caso tenha 1 players
+                    }
+                    
+                    
 
                 }
 
@@ -197,84 +202,75 @@ public class SupervisoraDeConexao extends Thread
                    this.usuario.receba (new SuaVez (this.idUsuario, AceitadoraDeConexao.idUsuario));
                 }
 
-                else if (comunicado instanceof PedidoVencedor)
-                {          
-                    //sistema de vencer
-                    PedidoVencedor PedidoVencedor = (PedidoVencedor)comunicado; 
+                else if  (comunicado instanceof Ganhei)
+                { //declara o ganhador
+                    AceitadoraDeConexao.vencedor = this.idUsuario;                    
+                    AceitadoraDeConexao.temVencedor = true;
+                    System.out.println("DECLAROU O VENCEDOR");
+                }
 
-                    //caso nao tenha ganhador, valida para tentar acha-lo
-                    if(!AceitadoraDeConexao.temVencedor)
-                    {
-                        if(PedidoVencedor.getValor() == 21  ) 
-                        {    
-                            AceitadoraDeConexao.vencedor = this.idUsuario;
-                            this.usuario.receba(new PedidoVencedor(AceitadoraDeConexao.vencedor, 2, 21));
-                            AceitadoraDeConexao.temVencedor = true;
-                            System.out.println("DECLAROU O VENCEDOR");
-                        }
-                        if(PedidoVencedor.getValor() != 21)
-                        {
-                            this.usuario.receba(new PedidoVencedor(AceitadoraDeConexao.idUsuario, 3, 0));
-                            System.out.println("CONTINUE");
-                        }
-                    }                    
+                else if(comunicado instanceof VerificaGanhei)
+                { //verificando se voce ganhou, para decidir se o jogo continua ou para
                     if(AceitadoraDeConexao.temVencedor)
                     {                       
-                        this.usuario.receba(new PedidoVencedor(AceitadoraDeConexao.vencedor,1 , PedidoVencedor.getValor()));
+                        this.usuario.receba(new PedidoVencedor(AceitadoraDeConexao.vencedor,1));
                     }
 
+                    else
+                        this.usuario.receba(new PedidoVencedor(AceitadoraDeConexao.vencedor,2));
                 }
-                else if (comunicado instanceof PedidoPlayAgain)
-                {          
-                    //sistema para jogar novamente          
-                    PedidoPlayAgain pedidoPlayAgain = (PedidoPlayAgain)comunicado;                    
+                else if(comunicado instanceof NaoJogarNovamente)
+                {
+                    //caso o lider escolha nao jogar novamente
+                    System.out.println("VOTOU NAO");
+                    AceitadoraDeConexao.jogarNovamente = -10;
                     
-                    //caso o servidor receba 2 significa que alguem votou SIM, entao tambem retorna 2
-                    if( pedidoPlayAgain.getmsgPlayAgain() == 2 )
-                    {                        
-                        AceitadoraDeConexao.jogarNovamente++;
-                        
-                        this.usuario.receba(new PedidoPlayAgain(2, 2));
-                        System.out.println("VOTOU SIM");
-                        
-
-
-                    }
-
-                    //o jogo so iniciara novamente caso todos players queiram jogar de novo
-                    if(AceitadoraDeConexao.jogarNovamente == 3)
-                    {   
-                        System.out.println("Td mundo quer jogar dnv");
-                        this.usuario.receba(new PedidoPlayAgain(3, 3));
-                        j1.reFazBaralho();
-                        AceitadoraDeConexao.jogarNovamente = 0;
-                        AceitadoraDeConexao.descartada = 0;
-                        AceitadoraDeConexao.idUsuario = 0; 
-                        AceitadoraDeConexao.temVencedor=false;
-                        AceitadoraDeConexao.jogarNovamente = 0;
-                        AceitadoraDeConexao.usuarios.clear();
-                        return;
-                    }
-
-                    //caso o servidor receba 1 significa que alguem votou NAO, entao tambem retorna 1
-                    if( pedidoPlayAgain.getmsgPlayAgain() == 1 )
-                    {                        
-                        AceitadoraDeConexao.jogarNovamente= -10;                        
-                        System.out.println("VOTOU NAO");
-
-
-                    }
-                    //retorna -10 caso alguem nao queira jogar novamente, entao todos sao desconectados
-                    if(AceitadoraDeConexao.jogarNovamente == -10)
-                    {   
-                        System.out.println("ALGUEM NAO QUER JOGAR DNV");
-                        this.usuario.receba(new PedidoPlayAgain(-10, -10));  
-                        
-                    }    
-                    //sistema de loop que espera a todos os jogadores votarem
-                    if(pedidoPlayAgain.getVoto() == 0 || pedidoPlayAgain.getmsgPlayAgain() == 0)
-                        this.usuario.receba (new PedidoPlayAgain (0, 0));
                 }
+
+                else if(comunicado instanceof JogarNovamente)
+                {       
+                    //caso o lider escolha jogar novamente      
+                    //todas variaveis compartilhadas sao zeradas     
+                    System.out.println("VOTOU SIM");
+                    AceitadoraDeConexao.jogarNovamente = 1;
+                    AceitadoraDeConexao.descartada.clear();
+                    AceitadoraDeConexao.descartada.add(0);
+                    AceitadoraDeConexao.idUsuario = 0; 
+                    AceitadoraDeConexao.temVencedor=false;
+                    j1.reFazBaralho();
+                    AceitadoraDeConexao.usuarios.clear(); 
+                    AceitadoraDeConexao.seuId = 0;
+                       
+                         
+                    
+                    
+                }
+                
+                else if(comunicado instanceof EsperandoVotacao)
+                {
+                   //sistema de espera da votação
+                    if(AceitadoraDeConexao.jogarNovamente == 1) //caso seja 1, o lider votou sim
+                    {   
+                        System.out.println("VAI REINICIAR");  
+                        
+
+                        this.usuario.receba(new PedidoPlayAgain(1));
+                        
+                    }
+
+                    if(AceitadoraDeConexao.jogarNovamente == -10) //caso seja -10, o lider votou nao
+                    {   
+                        System.out.println("NAO JOGARemos NOVAMENTE");                      
+                        this.usuario.receba(new PedidoPlayAgain(2));
+                        
+                    }
+
+                    if(AceitadoraDeConexao.jogarNovamente == 0) //apenas para funcionar o sistema de loop
+                    this.usuario.receba(new PedidoPlayAgain(0));
+                    
+                }
+
+
                 
 
             }

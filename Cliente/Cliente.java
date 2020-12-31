@@ -105,16 +105,18 @@ public class Cliente
 		Resultado 				resultado;
 		SuaVez     				pedido;
 		PedidoVencedor 			vencedor = null;				
-		PedidoPlayAgain 		pedidoPlayAgain;
+		PedidoPlayAgain 		pedidoPlayAgain = null;
 		int 					print = 0;
 		boolean 				jaPrintou2 = false;
-		Comunicado 				comunicadoInicial = null;;
+		Comunicado 				comunicadoInicial = null;
+		Comunicado 				comunicado = null;
+		
 
-
+		
         do
         {	
 
-
+			
 			do
 			{	
 				
@@ -130,7 +132,7 @@ public class Cliente
 				
 				if(start.getMsg() == 3 && !jaPrintou2)
 				{
-					System.out.println("***Esperando players se conectarem: "+start.getPlayers() + "/3***");
+					System.out.println("***Esperando players se conectarem: "+start.getPlayers()  + "/3***");
 					print++;
 					jaPrintou2 = true;
 					jaPrintou = true;
@@ -138,7 +140,7 @@ public class Cliente
 
 				if(start.getMsg() == 2 && !jaPrintou)
 				{
-					System.out.println("***Esperando players se conectarem: "+start.getPlayers() + "/3***");
+					System.out.println("***Esperando players se conectarem: "+start.getPlayers()  + "/3***");
 					print++;
 					jaPrintou = true;	
 				}
@@ -146,7 +148,7 @@ public class Cliente
 
 				if(start.getMsg() == 1 && print == 2 && jaPrintou)
 				{
-					System.out.println("\n***Todos jogadores conectados: "+start.getPlayers() + "/3***");
+					System.out.println("\n***Todos jogadores conectados: "+start.getPlayers()  + "/3***");
 					jaPrintou = false;
 				}
 				
@@ -155,11 +157,12 @@ public class Cliente
 			}
 			while(start.getPlayers() < 3);
 
-
+			
 			do
 			{
 				servidor.receba (new PedidoDaVez());
-				Comunicado comunicado = null;
+				
+				comunicado = null;
 
 				do
 				{
@@ -192,14 +195,14 @@ public class Cliente
 			
 			
 			servidor.receba (new PedidoDeResultado());
-			
-		
-			Comunicado comunicado = null;
-			
+
+			System.out.println("o comunicado e: " + comunicado);
+			comunicado = null;
 			do
 			{				
 					
-					comunicado = (Comunicado)servidor.espie ();
+				comunicado = (Comunicado)servidor.espie ();
+				
 					
 			}
 			while (!(comunicado instanceof Resultado));
@@ -248,8 +251,9 @@ public class Cliente
 				if (opcao == 'N')
 				{			
 					servidor.receba (new PedidoDeOperacao (opcao,0));					
-					System.out.println ("\nCarta comprada\n");					
-
+					System.out.println ("\nCarta comprada\n");	
+									
+					servidor.receba (new PedidoDeResultado());
 					comunicado = null;
 					do
 					{
@@ -257,7 +261,8 @@ public class Cliente
 					}
 					while (!(comunicado instanceof Resultado));
 					resultado = (Resultado)servidor.envie ();
-
+					
+					
 					System.out.println("--Suas NOVAS cartas são: "+resultado.toString() + "--");
 					System.out.println("--Seu NOVO valor total é: "+resultado.getValorTotal() + "--");
 					jaPrintouVez = false;					
@@ -275,10 +280,12 @@ public class Cliente
 							System.out.println("\n***Opcao invalida!***\n");
 							jaPrintouVez = true;
 							jaPrintou = true;
+							print = 1;
 							continue;
 						}
 						
 						servidor.receba (new PedidoDeOperacao (opcao, descarte));
+						
 						servidor.receba (new PedidoDeResultado());
 						comunicado = null;
 						do
@@ -288,19 +295,18 @@ public class Cliente
 						while (!(comunicado instanceof Resultado));
 						resultado = (Resultado)servidor.envie ();
 
-						if(resultado.getErro() == 1)
+
+
+						if(resultado.getErro() == -10)
 						{
 							System.out.println("\n***Seu baralho nao possui essa carta!***\n");
 							jaPrintouVez = true;
-							jaPrintou = true;							
-							comunicado = null;
+							jaPrintou = true;								
 							continue;
 						}
 
 						
 						System.out.println("\ncarta " + descarte + " descartada\n");
-						
-
 						System.out.println("--Suas NOVAS cartas são: "+resultado.toString() + "--");
 						System.out.println("--Seu NOVO valor total é: "+resultado.getValorTotal() + "--");						
 
@@ -322,6 +328,7 @@ public class Cliente
 					try{
 						servidor.receba (new PedidoDeOperacao (opcao,descarte));							
 						System.err.println ("\nCompra realizada da carta: " + descarte);
+						
 						servidor.receba (new PedidoDeResultado());
 						comunicado = null;
 						do
@@ -343,42 +350,37 @@ public class Cliente
 					}
 				}		
 
-
-
-
-
-
-								
-					
-					servidor.receba (new PedidoVencedor(pedido.getUsuarioServidor(), 0, resultado.getValorTotal()));
 					comunicado = null;
-					
-				do
-				{
-					comunicado = (Comunicado)servidor.espie ();
-					
-				}
-				while (!(comunicado instanceof PedidoVencedor));
-				vencedor = (PedidoVencedor)servidor.envie ();
 
-				if(vencedor.getMsg()==3)
-				{
+					if(resultado.getValorTotal() == 21)
+					{
+						servidor.receba (new Ganhei());
+						System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n===============[PARABÉNS, VOCÊ ATINGIU 21 E GANHOU]===============");
+						break;
+					}
 					
-					continue;
-					
-				}
+					else
+					{
+						servidor.receba (new VerificaGanhei());
+						comunicado = null;
+						do
+						{
+							comunicado = (Comunicado)servidor.espie ();
+						}
+						while (!(comunicado instanceof PedidoVencedor));
+						vencedor = (PedidoVencedor)servidor.envie ();
 
-				if(vencedor.getMsg()==2)
-				{
-					System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n===============[PARABÉNS, VOCÊ ATINGIU 21 E GANHOU]===============");
-					break;
-				}				
-				
-				if(vencedor.getMsg()==1)
-				{
-					System.out.println ("\n\n\n\n\n\n\n\n\n\n\n\n===============[VOCÊ PERDEU, O GANHADOR FOI O " + (vencedor.getVencedor() + 1)  + "° JOGADOR]===============");
-					break;
-				}				
+						if(vencedor.getMsg() == 2)
+							continue;
+
+						else
+						{
+							System.out.println ("\n\n\n\n\n\n\n\n\n\n\n\n===============[VOCÊ PERDEU, O GANHADOR FOI O " + (vencedor.getVencedor() + 1)  + "° JOGADOR]===============");
+							break;
+						}
+					}
+					
+						
 
 			}
 			catch (Exception erro)
@@ -391,99 +393,92 @@ public class Cliente
         }
 		while (true);
 
-				servidor.receba (new PedidoPlayAgain(0, 0));			
-				Comunicado comunicado1 = null;
-				do
-				{
-					comunicado1 = (Comunicado)servidor.espie ();
-					
-				}
-				while (!(comunicado1 instanceof PedidoVencedor || !(comunicado1 instanceof PedidoPlayAgain)));
-				if(comunicado1 instanceof PedidoPlayAgain)
-				pedidoPlayAgain= (PedidoPlayAgain)servidor.envie ();
-				else
-				vencedor = (PedidoVencedor)servidor.envie();
+							
+		Comunicado 	comunicadoFinal = null;	
 		
-		
-		System.err.println ("===============[DESEJA JOGAR NOVAMENTE? (S ou N)]===============");
-
-		do
-	{
-
-		try
+		if(seuId == 0)
 		{
-			opcao = Character.toUpperCase(Teclado.getUmChar());
-			
-		}
-		catch (Exception erro)
-		{
-			System.err.println ("\n***Opcao invalida!***\n");
-			continue;
-			
-		}
+			System.err.println ("===============[O JOGO IRÁ REINICIAR? (S ou N)]===============");
 
-		if ("NS".indexOf(opcao)==-1)
-		{
-			System.err.println ("\n***Opcao invalida!***\n");
-			continue;
-			
-		}
-		
-	}while("NS".indexOf(opcao)==-1);
-
-
-		boolean jaPrintouVotacao = false;
-
-
-		if(opcao == 'N')
-		{
-			servidor.receba (new PedidoPlayAgain(1, 1));	
-					
-		}
-
-		if(opcao == 'S')
-		{
-			servidor.receba (new PedidoPlayAgain(2, 2));
-		}
-
-		do{		
-			servidor.receba (new PedidoPlayAgain(0, 0));						
-			comunicado1 = null;
 			do
 			{
-				comunicado1 = (Comunicado)servidor.espie ();				
-			}
-			while (!(comunicado1 instanceof PedidoPlayAgain));
-			pedidoPlayAgain = (PedidoPlayAgain) servidor.envie();
+
+				try
+				{
+					opcao = Character.toUpperCase(Teclado.getUmChar());
+					
+				}
+				catch (Exception erro)
+				{
+					System.err.println ("\n***Opcao invalida!***\n");
+					continue;
+					
+				}
+
+				if ("NS".indexOf(opcao)==-1)
+				{
+					System.err.println ("\n***Opcao invalida!***\n");
+					continue;
+					
+				}
+			
+			}while("NS".indexOf(opcao)==-1);
+
+
 			
 
-			if(!jaPrintouVotacao)
-			{
-				System.out.println("\n===============[ESPERANDO TODOS JOGADORES VOTAREM]===============");
-				jaPrintouVotacao = true;
-			}
-			if( pedidoPlayAgain.getmsgPlayAgain() == -10)
-			break;
-			
-			}while(pedidoPlayAgain.getmsgPlayAgain() != 3);
-			
 
-			if(pedidoPlayAgain.getmsgPlayAgain() == 3)
+			if(opcao == 'N')
 			{
-				System.out.println("\n===============[TODOS JOGADOREs QUEREM JOGAR NOVAMENTE]===============");
-				System.out.println("============================[RECOMEÇANDO]============================\n");		
-				continue;
+				servidor.receba (new NaoJogarNovamente());	
+					
 			}
 
-			if(pedidoPlayAgain.getmsgPlayAgain() == -100 || pedidoPlayAgain.getmsgPlayAgain() == -10)
+			if(opcao == 'S')
 			{
-				System.out.println("\n===============[ALGUM JOGADOR NÃO QUER JOGAR NOVAMENTE]===============");
-				System.out.println("============================[ENCERRANDO JOGO]============================\n");		
-				break;
+				servidor.receba (new JogarNovamente());
+				
+				
 			}
+		}
+		
+		System.out.println("\n===============[ESPERANDO O LIDER DECIDIR SE O JOGO REINICIARÁ]===============");
 
 		
-		}while(true);
+		do{		
+			servidor.receba (new EsperandoVotacao());
+			comunicadoFinal = null;
+			do
+			{
+				comunicadoFinal = (Comunicado)servidor.espie ();
+					
+			}
+			while (!(comunicadoFinal instanceof PedidoPlayAgain));
+			pedidoPlayAgain = (PedidoPlayAgain)servidor.envie ();		
+			
+			
+
+		  }while(pedidoPlayAgain.getVoto() == 0 );
+	
+		
+
+		if(pedidoPlayAgain.getVoto() == 1)
+		{
+			System.out.println("\n===============[TODOS JOGADORES QUEREM JOGAR NOVAMENTE]===============");
+			System.out.println("============================[RECOMEÇANDO]============================\n");
+			continue;
+		}
+
+		  if(pedidoPlayAgain.getVoto() == 2)
+		  {
+			System.out.println("\n===============[ALGUM JOGADOR NÃO QUER JOGAR NOVAMENTE]===============");
+			System.out.println("============================[ENCERRANDO JOGO]============================\n");
+			break;
+		  }
+
+
+
+	}while(true);
 
 		try
 		{

@@ -27,7 +27,6 @@ public class Parceiro
         if (transmissor==null)
             throw new Exception ("Transmissor ausente");
 
-            
         this.conexao     = conexao;
         this.receptor    = receptor;
         this.transmissor = transmissor;
@@ -35,12 +34,9 @@ public class Parceiro
 
     public void receba (Comunicado x) throws Exception
     {
-        
-        
         try
         {
             this.transmissor.writeObject (x);
-            
             this.transmissor.flush       ();
         }
         catch (IOException erro)

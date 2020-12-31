@@ -1,12 +1,12 @@
 public class PedidoPlayAgain extends Comunicado
 {        
-    private int       msgPlayAgain;
+    
     private int       voto;
 
-    public PedidoPlayAgain (int msgPlayAgain, int voto)
+    public PedidoPlayAgain (int voto)
     {       
         this.voto = voto;        
-        this.msgPlayAgain = msgPlayAgain;  
+          
     }
     
     public int getVoto(){
@@ -14,10 +14,7 @@ public class PedidoPlayAgain extends Comunicado
     } 
 
     
-    
-    public int getmsgPlayAgain(){
-        return this.msgPlayAgain;
-    } 
+
     
 
 }

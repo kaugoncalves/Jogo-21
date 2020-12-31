@@ -2,14 +2,14 @@ public class PedidoVencedor extends Comunicado
 {     
     private int       vencedor;   
     private int       msg;
-    private int       valor;
+    
     
 
-    public PedidoVencedor (int  vencedor, int msg, int valor)
+    public PedidoVencedor (int  vencedor, int msg)
     {       
         this.vencedor = vencedor;
         this.msg = msg;   
-        this.valor = valor; 
+      
         
     }
     
@@ -21,9 +21,7 @@ public class PedidoVencedor extends Comunicado
         return this.msg;
     }
     
-    public int getValor(){
-        return this.valor;
-    }     
+      
     
     
 

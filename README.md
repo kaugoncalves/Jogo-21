@@ -26,6 +26,6 @@
 # Funcionalidades ⚙️
 - Jogar com 3 pessoas
 - Comprar carta, descartar, comprar carta descartada
-- Opção de, caso todos o líder queira jogar novamente, o jogo recomeça
+- Opção de, caso o líder queira jogar novamente, o jogo recomeça
 
 

@@ -45,13 +45,8 @@ public class Jogo {
 
     public void descarte(int descartada){
 
-        
-
-        cartas.removeElement(descartada);
-
-        AceitadoraDeConexao.descartada.add(descartada);
-               
-        
+        cartas.removeElement(descartada); //remove
+        AceitadoraDeConexao.descartada.add(descartada); //e adiciona no vector de descartada
     }
 
     public int somando(){
@@ -79,7 +74,7 @@ public class Jogo {
             {
                 alterna=4;
                 if(i==10)
-                    alterna=16; //caso seja a carta 10, existe a carta 10, k, j, q
+                    alterna=16; //caso seja alguma carta com valor 10, existem as cartas 10, k, j, q
 
                 for(int j = 0; j < alterna; j++) //todas as cartas precisam aparecer minimamente 4 vezes
                 {
@@ -88,21 +83,7 @@ public class Jogo {
             }
             
     }
-    public void clear(Vector<Integer> baralho){
-        this.cartas.clear();
-
-        this.cartas = new Vector<Integer>(3);       
-        Random gerador = new Random();
-
-        for(int i = 0; i < this.cartas.capacity(); i++)
-        {
-            int posicao = (gerador.nextInt(AceitadoraDeConexao.baralho.size())); //so vai sortear uma poiscão q exista no vector baralho
-            this.cartas.add(baralho.elementAt(posicao));
-            AceitadoraDeConexao.baralho.removeElementAt(posicao); //logo apos adicionar a carta em determinada posição, aquela posicao é removida do vetor, e o vetor se adapta
-        }
-
-    }
-
+    
 
 
 

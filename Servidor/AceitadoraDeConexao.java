@@ -7,16 +7,13 @@ public class AceitadoraDeConexao extends Thread
     protected static ArrayList<Parceiro> usuarios;
     protected static Vector<Integer>     descartada; 
     protected static Vector<Integer>     baralho;
-    protected static int                 idUsuario = 0; 
-    protected static boolean             temVencedor=false;
-    protected static int                 jogarNovamente = 0;
+    protected static int                 idUsuario;
+    protected static boolean             temVencedor;
+    protected static int                 jogarNovamente;
     protected static int                 vencedor;
-    protected static int                 seuId = 0;
+    protected static int                 seuId;
     
     
-    
- 
-
     public AceitadoraDeConexao
     (String porta, ArrayList<Parceiro> usuarios)
     throws Exception
@@ -38,7 +35,7 @@ public class AceitadoraDeConexao extends Thread
         if (usuarios==null)
             throw new Exception ("Usuarios ausentes");
 
-             baralho = new Vector<Integer>();
+            baralho = new Vector<Integer>();
 
             //criando o vetor de cartas, pois a Classe vector nao permite adicionar direto
             int alterna = 4;
@@ -46,7 +43,7 @@ public class AceitadoraDeConexao extends Thread
             {
                 alterna=4;
                 if(i==10)
-                    alterna=16; //caso seja a carta 10, existe a carta 10, k, j, q
+                alterna=16; //caso seja algumca carta com valor 10, existem as cartas 10, k, j, q
 
                 for(int j = 0; j < alterna; j++) //todas as cartas precisam aparecer minimamente 4 vezes
                 {
@@ -54,12 +51,16 @@ public class AceitadoraDeConexao extends Thread
                 }
                 
             }
-            this.descartada = new Vector<Integer>(); 
-            this.descartada.add(0);
-        System.out.println("O baralho é: "+baralho.toString()); 
-
-        
+        this.descartada = new Vector<Integer>(); 
+        this.descartada.add(0);
+        this.seuId = 0;
+        this.jogarNovamente = 0;
+        this.temVencedor=false;
+        this.idUsuario = 0;
         this.usuarios = usuarios;
+        System.out.println("O baralho é: "+baralho.toString()); 
+        
+        
     }
 
     public void run ()

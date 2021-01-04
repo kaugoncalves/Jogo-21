@@ -196,7 +196,7 @@ public class Cliente
 			
 			servidor.receba (new PedidoDeResultado());
 
-			System.out.println("o comunicado e: " + comunicado);
+			
 			comunicado = null;
 			do
 			{				
@@ -355,7 +355,8 @@ public class Cliente
 					if(resultado.getValorTotal() == 21)
 					{
 						servidor.receba (new Ganhei());
-						System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n===============[PARABÉNS, VOCÊ ATINGIU 21 E GANHOU]===============");
+						System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n===============[FIM DE JOGO]===============\n");
+						System.out.println("===============[PARABÉNS, VOCÊ ATINGIU 21 E GANHOU]===============");
 						break;
 					}
 					
@@ -375,7 +376,8 @@ public class Cliente
 
 						else
 						{
-							System.out.println ("\n\n\n\n\n\n\n\n\n\n\n\n===============[VOCÊ PERDEU, O GANHADOR FOI O " + (vencedor.getVencedor() + 1)  + "° JOGADOR]===============");
+							System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n===============[FIM DE JOGO]===============\n");
+							System.out.println ("===============[VOCÊ PERDEU, O GANHADOR FOI O " + (vencedor.getVencedor() + 1)  + "° JOGADOR]===============");
 							break;
 						}
 					}
@@ -464,14 +466,14 @@ public class Cliente
 
 		if(pedidoPlayAgain.getVoto() == 1)
 		{
-			System.out.println("\n===============[TODOS JOGADORES QUEREM JOGAR NOVAMENTE]===============");
+			System.out.println("\n===============[O LÍDER DECIDIU QUE JOGAREMOS NOVAMENTE]===============");
 			System.out.println("============================[RECOMEÇANDO]============================\n");
 			continue;
 		}
 
 		  if(pedidoPlayAgain.getVoto() == 2)
 		  {
-			System.out.println("\n===============[ALGUM JOGADOR NÃO QUER JOGAR NOVAMENTE]===============");
+			System.out.println("\n===============[O LÍDER DECIDIU QUE NÃO JOGAREMOS NOVAMENTE]===============");
 			System.out.println("============================[ENCERRANDO JOGO]============================\n");
 			break;
 		  }
